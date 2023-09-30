@@ -1,0 +1,13 @@
+Flow of execution
+1. Login to AWS account
+2. Create Key pairs
+3. Create Security groups
+4. Launch Instances with user data
+5. Update IP to name mapping to Route 53.
+6. Build application from source code.
+7. Upload to S3 bucket.
+8. Download artifact to Tomcat EC2 instance.
+9. SetUp ELB with https[Certificate from ACM]
+10. Map ELB to website name in GoDaddy.
+11. Verify
+12. Build ASG for Tomcat instances.
