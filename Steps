@@ -6,7 +6,9 @@ Flow of execution
 check status after ssh systemctl status mariadb etc. and  ss -tunlp | grep 3306 to view which port open.
 5. Update IP to name mapping to Route 53. -   
 Create Private Hosted zone, Create record - Simple routing, define simple record- and put ip address of the instances launched.
-6. Build application from source code.
+6. Build application from source code and prepare artifacts and upload to S3 bucket. On AWs we need to create S3 bucket, IAm role and IAm user.
+   change application.properties file where instead of like db01 give dbo1.domainname. Then  mvn install from same path where pom.xml is there. In production,
+it does not happen like this. We need to use CI CD.
 7. Upload to S3 bucket.
 8. Download artifact to Tomcat EC2 instance.
 9. SetUp ELB with https[Certificate from ACM]
