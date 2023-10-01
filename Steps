@@ -4,7 +4,7 @@ Flow of execution
 3. Create Security groups for ELB (https allow) and Tomcat instances 8080 allow from ELB SG, Backend services (3306,11211,5672) allow from App SG,All traffic from own SG to interact all backend service to connect to each other.
 4. Launch Instances with user data
 check status after ssh systemctl status mariadb etc. and  ss -tunlp | grep 3306 to view which port open.
-5. Update IP to name mapping to Route 53.
+5. Update IP to name mapping to Route 53. -   Create Private Hosted zone, Create record - Simple routing, define simple record- and put ip address of the instances launched.
 6. Build application from source code.
 7. Upload to S3 bucket.
 8. Download artifact to Tomcat EC2 instance.
