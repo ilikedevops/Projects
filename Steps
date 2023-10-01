@@ -9,8 +9,9 @@ Create Private Hosted zone, Create record - Simple routing, define simple record
 6. Build application from source code and prepare artifacts and upload to S3 bucket. On AWs we need to create S3 bucket, IAm role and IAm user.
    change application.properties file where instead of like db01 give dbo1.domainname. Then  mvn install from same path where pom.xml is there. In production,
 it does not happen like this. We need to use CI CD.
-7. Upload to S3 bucket.
-8. Download artifact to Tomcat EC2 instance.
+7. Upload to S3 bucket.-- cReate access keys and use aws configure. then create bucket from cmd line - aws s3 mb s3://uniquebucketname
+     aws s3 cp traget/mytier-V1.war s3://uniquebucketname
+8. Download artifact to Tomcat EC2 instance.  We can create a role and attach to ec2 instance so that it can access s3 to download.
 9. SetUp ELB with https[Certificate from ACM]
 10. Map ELB to website name in GoDaddy.
 11. Verify
