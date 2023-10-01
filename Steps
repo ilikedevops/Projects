@@ -10,9 +10,16 @@ Create Private Hosted zone, Create record - Simple routing, define simple record
    change application.properties file where instead of like db01 give dbo1.domainname. Then  mvn install from same path where pom.xml is there. In production,
 it does not happen like this. We need to use CI CD.
 7. Upload to S3 bucket.-- cReate access keys and use aws configure. then create bucket from cmd line - aws s3 mb s3://uniquebucketname
-     aws s3 cp traget/mytier-V1.war s3://uniquebucketname
+     aws s3 cp target/mytier-V1.war s3://uniquebucketname
 8. Download artifact to Tomcat EC2 instance.  We can create a role and attach to ec2 instance so that it can access s3 to download.
-9. SetUp ELB with https[Certificate from ACM]
+
+       aws s3 cp s3://uniquebucketname/mytier-V1.war /tmp/
+    rm -rf /var/lib/tomcat9/webapps/ROOT
+    cp  /tmp/mytier-V1.war /var/lib/tomcat9/webapps/ROOT.war
+9. SetUp ELB with https[Certificate from ACM] -- Create Target Groups , port 8080 , helathcheck /login etc.
+   Create ALB . select all zones to make ALB high available. Create HTTPS port 443 in Listener and add the certificate created from ACM.
+
 10. Map ELB to website name in GoDaddy.
+   Take Load balancer url and in goDadaddy create CNAME record , give host name as multitier.domainname(like multitier.foo.com) and points to url.
 11. Verify
 12. Build ASG for Tomcat instances.
