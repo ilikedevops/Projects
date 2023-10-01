@@ -1,27 +1,37 @@
 Flow of execution
+***********************
 1. Login to AWS account
+
 2. Create Key pairs
+
 3. Create Security groups for ELB (https allow) and Tomcat instances 8080 allow from ELB SG, Backend services (3306,11211,5672) allow from App SG,All traffic from own SG to interact all backend service to connect to each other.
+
 4. Launch Instances with user data
 check status after ssh systemctl status mariadb etc. and  ss -tunlp | grep 3306 to view which port open.
+
 5. Update IP to name mapping to Route 53. -   
 Create Private Hosted zone, Create record - Simple routing, define simple record- and put ip address of the instances launched.
+
 6. Build application from source code and prepare artifacts and upload to S3 bucket. On AWs we need to create S3 bucket, IAm role and IAm user.
-   change application.properties file where instead of like db01 give dbo1.domainname. Then  mvn install from same path where pom.xml is there. In production,
-it does not happen like this. We need to use CI CD.
+Change application.properties file where instead of like db01 give dbo1.domainname. Then  mvn install from same path where pom.xml is there. In production,it does not happen like this. We need to use CI CD.
+
 7. Upload to S3 bucket.-- cReate access keys and use aws configure. then create bucket from cmd line - aws s3 mb s3://uniquebucketname
      aws s3 cp target/mytier-V1.war s3://uniquebucketname
+
 8. Download artifact to Tomcat EC2 instance.  We can create a role and attach to ec2 instance so that it can access s3 to download.
 
        aws s3 cp s3://uniquebucketname/mytier-V1.war /tmp/
     rm -rf /var/lib/tomcat9/webapps/ROOT
     cp  /tmp/mytier-V1.war /var/lib/tomcat9/webapps/ROOT.war
+
 9. SetUp ELB with https[Certificate from ACM] -- Create Target Groups , port 8080 , helathcheck /login etc.
    Create ALB . select all zones to make ALB high available. Create HTTPS port 443 in Listener and add the certificate created from ACM.
 
 10. Map ELB to website name in GoDaddy.
    Take Load balancer url and in goDadaddy create CNAME record , give host name as multitier.domainname(like multitier.foo.com) and points to url.
+
 11. Verify
+
 12. Build ASG for Tomcat instances. _-- Create AMI of the instance. Create Launch Configurations for ASG - select AMI created, give instance type,iam role,enable cloudwatch monitoring,
   SG, log in key pair.
   Then create ASG -- Select Launcg Configuration -- vpc,Target Group, Helath Checks on ELB, capacity- desired, minimum and maximum, scaling policy-CPU utilization,
