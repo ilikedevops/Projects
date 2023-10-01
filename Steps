@@ -22,4 +22,8 @@ it does not happen like this. We need to use CI CD.
 10. Map ELB to website name in GoDaddy.
    Take Load balancer url and in goDadaddy create CNAME record , give host name as multitier.domainname(like multitier.foo.com) and points to url.
 11. Verify
-12. Build ASG for Tomcat instances.
+12. Build ASG for Tomcat instances. _-- Create AMI of the instance. Create Launch Configurations for ASG - select AMI created, give instance type,iam role,enable cloudwatch monitoring,
+  SG, log in key pair.
+  Then create ASG -- Select Launcg Configuration -- vpc,Target Group, Helath Checks on ELB, capacity- desired, minimum and maximum, scaling policy-CPU utilization,
+Notification to SNS topic.  
+
