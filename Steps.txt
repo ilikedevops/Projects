@@ -1,0 +1,107 @@
+Flow of Execution
+*********************
+
+1. Login to AWS account
+
+2. Create key pair for Beanstalk instance login. Key pair use for if needed for troubleshooting.
+   
+
+3.Create SG fro backend service like Elasticcache, RDS and ActiveMQ.
+
+   SG - Inbound rules to all internal connectivity among backend services.
+
+4. Create 
+    a. RDS -
+       Create Subnet groups-- give vpc, all zones, subnets under those zones. It is network we create
+and we will launch B in this network.
+
+Create Parameter Group--- In RDS since we cannot ssh to make any configuration changes, all configurations
+  are created in default. So we create Parameter group for configuration changes.
+Create Database -
+    b. Amazon Elastic Cache
+  Create Subnet group and Parameter group
+    c. Amazon Active MQ
+
+5. Launch Ec2 instance temporarily
+ in same VPC as RDS for DB initializing -- We need to run db_backup.sql to inserting the data.
+  Update inbound rules for SG of backend service which allows 3306 from SG of EC2 instance created.
+
+6. Login to instance and initialize RDS DB
+   ssh -i
+   mysql -h RDSendpoint(copy after RDs is created) -u admin -pPassword(password copied when RDs is created)
+   accounts < src/main/resources/db_backup.sql
+  Once done delete the EC2 instance.
+
+Copy RDS,RabbitMQ, ElasticCache endpoint.
+
+7. Create Elastic beanstalk env
+   Create IAM roles to use in beanstalk for EC2 service and select policy AWSBeanStalkWebTier,Administrator Access-AWSBeanStalk, AWSElasticBeanStalkRoleSNS, AWSElasticBeanStalkCustomPlatformforEC2Role
+Give name,environmentname, Domain,Platform (Tomcat),PlatformBarnch,Application code(upload your code),
+Presets-Custom Configuration,
+Then next Service Role (create new service role-plz check if same service role exists then delete
+ and instance role(choose the role created)
+Select Key pair created, then next VPC, Public IP address select Activated,select all istance subnets,
+We are not going to create RDS through benastalk as if beanstalk deleted then RDs is also deleted. RDs should
+have seperate lifecycle. Then next root volume select general purpose,capacity -Load Balanced - Min 2 instances
+Max - 8, instance type, Scaling triggers- Network Out, Load balance subnets keep same as instance,
+Load Balancer- ALB, Listeners- 443 and 80 if needed, Processes - helathcheck url needs to change later from / to /login and enable session stickiness.
+
+Then next health reporting,managed platform updates, email notification, rolling updates and deployments
+---
+  a. All at once-- All instances will be down and then new instances would be brought up. Downtime is there.
+  b. Rolling- we can say 1 instances or 10 % of the instances down to go down and update.
+  c. Rolling with additional batch -- if 10 instances are there then given 10 % instance at time then new 1 instance is created first so no downtime and when new instance is helathy it will delete old instances.
+  d.Immutable - safest and most expensive. If we have 10 instances it will launch 10 new instances and then delete old instances when these new instances are healthy.
+
+  e. Traffic splitting : Send the certain percentage of traffic to new instances for certain period of time
+ and remaining to old ones. When new are healthy then send the remaining to new ones.
+
+
+
+8. Update backend Sg to allow traffic from Beanstalk SG.
+
+  First enable ACL enabled for S3 bucket to access bucket from my own AWS account.
+  
+  Edit inbound rules of backend service SG to all all traffic or give specific port for backened service. from Beanstalk SG
+
+9. Update SG of backend to allow internal traffic.
+
+
+
+10. Change healthcheck on beanstalk to /login
+
+
+Update healtcheck to /login as mentioned above going to bean stalk environment,Processes and enable session stickiness so that requests comes to same Ec2 instances everytime as it might go to different instance for load balancing. Do for this project.
+
+11. Add 443 https listener to ELB
+
+Crate listener and apply.
+
+
+12. Build Artifact with Backedn Information
+
+clone code in local drive,  update application.properties to update mysql, Elastic cache, Rabbit MQ url that is copied from AWS. Also update password or id if changed while creating Benastalk. open git bash and move to folder where pom.xml file is there.
+
+ mvm install
+
+
+
+13. Deply artifact to Benastalk
+     
+Go to Beankstalk environment and upload the artifacts created in target folder.
+
+http will work but for https need to add endpoint in DNS.
+
+14. Update LB endpoint in go daddy DNS zone
+    Go to ACM and check if certificate issued for domain.
+   then go to go daddy and domainname, dns setting, Add Cname record -- give name as multitier, endpoint as endpoint of Elastic Beanstalk
+
+15. Create CDN with ssl cert
+
+
+
+
+16. Test the url
+
+
+  
